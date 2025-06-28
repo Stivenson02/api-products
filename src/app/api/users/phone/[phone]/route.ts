@@ -2,11 +2,11 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { phone: string } }
-) {
-  const phone = decodeURIComponent(params.phone);
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const segments = url.pathname.split('/');
+  const rawPhone = segments[segments.length - 1];
+  const phone = decodeURIComponent(rawPhone);
 
   const user = await prisma.user.findUnique({ where: { phone } });
 
