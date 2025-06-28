@@ -101,6 +101,7 @@ export async function GET(req: Request) {
       status: salesChat.status,
       resumen: salesChat.resumen,
       createdAt: salesChat.createdAt,
+      productoInteresado: salesChat.productoInteresado
     },
     user: {
       id: salesChat.user.id,
