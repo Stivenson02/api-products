@@ -33,3 +33,14 @@ model Message {
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
 }
+
+model Lead {
+  id         Int      @id @default(autoincrement())
+  name       String?
+  email      String?
+  phone      String   @unique
+  searchTerm String?
+  tipoLead   String?  // Ej: 'WhatsApp', 'Orgánico', etc.
+  promedio   Float?   // Ej: promedio de valor, utilidad, etc.
+  createdAt  DateTime @default(now())
+}
