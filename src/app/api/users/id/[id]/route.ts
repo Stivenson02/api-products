@@ -20,3 +20,34 @@ export async function GET(req: Request) {
 
   return NextResponse.json(user);
 }
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  const userId = parseInt(params.id, 10);
+  if (isNaN(userId)) {
+    return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+  }
+
+  const { name, email } = await req.json();
+
+  // Verificamos si hay algo para actualizar
+  if (!name && !email) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
+  }
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(name && { name }),
+        ...(email && { email }),
+      },
+    });
+
+    return NextResponse.json({ status: 'updated', user: updatedUser });
+  } catch (error) {
+    return NextResponse.json({ error: 'User not found or update failed' }, { status: 404 });
+  }
+}
