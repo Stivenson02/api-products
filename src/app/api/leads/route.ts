@@ -38,7 +38,7 @@ export async function GET(req: Request) {
   const email = searchParams.get('email')?.toLowerCase();
   const searchTerm = searchParams.get('searchTerm')?.toLowerCase();
 
-  const where: Record<string, any> = {
+  const where: Record<string, unknown> = {
 
     ...(name && { name: { contains: name, mode: 'insensitive' } }),
     ...(email && { email: { contains: email, mode: 'insensitive' } }),
