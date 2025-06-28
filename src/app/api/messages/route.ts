@@ -79,16 +79,37 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'chatId is required' }, { status: 400 });
   }
 
-  const messages = await prisma.message.findMany({
-    where: {
-      salesChatId: parseInt(chatId),
-    },
-    orderBy: {
-      createdAt: 'asc',
-    },
+  const salesChat = await prisma.salesChat.findUnique({
+    where: { id: parseInt(chatId) },
+    include: {
+      user: true,
+      messages: {
+        orderBy: { createdAt: 'asc' }
+      }
+    }
   });
 
-  return NextResponse.json({ status: 'ok', chatId: parseInt(chatId), messages });
+  if (!salesChat) {
+    return NextResponse.json({ error: 'SalesChat not found' }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    status: 'ok',
+    salesChatId: salesChat.id,
+    salesChat: {
+      id: salesChat.id,
+      status: salesChat.status,
+      resumen: salesChat.resumen,
+      createdAt: salesChat.createdAt,
+    },
+    user: {
+      id: salesChat.user.id,
+      phone: salesChat.user.phone,
+      name: salesChat.user.name,
+      email: salesChat.user.email
+    },
+    messages: salesChat.messages
+  });
 }
 
 
