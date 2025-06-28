@@ -21,18 +21,18 @@ export async function GET(req: Request) {
   return NextResponse.json(user);
 }
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const userId = parseInt(params.id, 10);
+export async function PATCH(req: Request) {
+  const url = new URL(req.url);
+  const segments = url.pathname.split('/');
+  const id = segments[segments.length - 1];
+
+  const userId = parseInt(id, 10);
   if (isNaN(userId)) {
     return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
   }
 
   const { name, email } = await req.json();
 
-  // Verificamos si hay algo para actualizar
   if (!name && !email) {
     return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
   }
@@ -52,3 +52,4 @@ export async function PATCH(
     return NextResponse.json({ error: 'User not found or update failed' }, { status: 404 });
   }
 }
+
