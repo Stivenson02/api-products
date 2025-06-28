@@ -38,7 +38,7 @@ model Lead {
   id         Int      @id @default(autoincrement())
   name       String?
   email      String?
-  phone      String   @unique
+  phone      String
   searchTerm String?
   tipoLead   String?  // Ej: 'WhatsApp', 'Orgánico', etc.
   promedio   Float?   // Ej: promedio de valor, utilidad, etc.
