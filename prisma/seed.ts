@@ -6,8 +6,8 @@ const prisma = new PrismaClient();
 async function main() {
   const category = 'shoes';
   const brands = ['Nike', 'Adidas', 'Puma', 'Reebok', 'New Balance', 'Converse'];
-  const types = ['Deportivos', 'Casuales', 'Running', 'Formales', 'Sandalias', 'Botas'];
-  const colors = ['Negro', 'Blanco', 'Rojo', 'Azul', 'Gris', 'Verde'];
+  const types = ['Sport', 'Casual', 'Running', 'Formal', 'Sandals', 'Boots'];
+  const colors = ['Black', 'White', 'Red', 'Blue', 'Gray', 'Green'];
 
   const sizes = Array.from({ length: 19 }, (_, i) => 36 + i * 0.5);
 
@@ -23,10 +23,9 @@ async function main() {
   }));
 
   await prisma.product.deleteMany();
-
   await prisma.product.createMany({ data: products });
 
-  console.log('✅ Se insertaron 200 productos tipo zapatos.');
+  console.log('✅ Inserted 200 shoe products.');
 }
 
 main()
