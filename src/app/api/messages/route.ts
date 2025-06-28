@@ -73,43 +73,22 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const rawPhone = searchParams.get('phone');
+  const chatId = searchParams.get('chatId');
 
-  if (!rawPhone) {
-    return NextResponse.json({ error: 'Phone is required' }, { status: 400 });
+  if (!chatId) {
+    return NextResponse.json({ error: 'chatId is required' }, { status: 400 });
   }
-
-  const phone = decodeURIComponent(rawPhone);
-
-  const user = await prisma.user.findUnique({
-    where: { phone },
-  });
-
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
-  }
-
-  // Obtener la fecha actual con hora 00:00
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-
-  // Obtener fin del día actual 23:59
-  const endOfToday = new Date();
-  endOfToday.setHours(23, 59, 59, 999);
 
   const messages = await prisma.message.findMany({
     where: {
-      userId: user.id,
-      createdAt: {
-        gte: startOfToday,
-        lte: endOfToday,
-      },
+      salesChatId: parseInt(chatId),
     },
     orderBy: {
       createdAt: 'asc',
     },
   });
 
-  return NextResponse.json(messages);
+  return NextResponse.json({ status: 'ok', chatId: parseInt(chatId), messages });
 }
+
 
