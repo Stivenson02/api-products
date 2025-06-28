@@ -48,6 +48,7 @@ export async function PATCH(
 
     return NextResponse.json({ status: 'updated', user: updatedUser });
   } catch (error) {
+    console.error('Update user error:', error);
     return NextResponse.json({ error: 'User not found or update failed' }, { status: 404 });
   }
 }
