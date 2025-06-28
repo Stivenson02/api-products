@@ -6,27 +6,42 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   const body = await req.json();
   const keywords: string[] = body.keywords || [];
+  const productIds: number[] = body.productIds || [];
 
-  if (!keywords.length) {
-    return NextResponse.json({ error: 'No keywords provided' }, { status: 400 });
+  const finalProducts: unknown[] = [];
+
+  // 1. Buscar productos por ID (hot interest)
+  if (productIds.length > 0) {
+    const hotProducts = await prisma.product.findMany({
+      where: {
+        id: { in: productIds },
+      },
+    });
+
+    hotProducts.forEach(p => finalProducts.push({ ...p, interes: 'hot' }));
   }
 
-  const orFilters = keywords.flatMap(keyword => {
-    const fields = ['title', 'category', 'brand', 'type', 'color'] as const;
+  // 2. Buscar productos por keywords (low interest), excluyendo los ya encontrados
+  if (keywords.length > 0) {
+    const orFilters = keywords.flatMap(keyword => {
+      const fields = ['title', 'category', 'brand', 'type', 'color'] as const;
+      return fields.map(field => ({
+        [field]: {
+          contains: keyword,
+          mode: 'insensitive' as const,
+        },
+      }));
+    });
 
-    return fields.map(field => ({
-      [field]: {
-        contains: keyword,
-        mode: 'insensitive' as const
-      }
-    }));
-  });
+    const lowProducts = await prisma.product.findMany({
+      where: {
+        OR: orFilters,
+        id: productIds.length > 0 ? { notIn: productIds } : undefined,
+      },
+    });
 
-  const products = await prisma.product.findMany({
-    where: {
-      OR: orFilters
-    }
-  });
+    lowProducts.forEach(p => finalProducts.push({ ...p, interes: 'low' }));
+  }
 
-  return NextResponse.json(products);
+  return NextResponse.json(finalProducts);
 }
