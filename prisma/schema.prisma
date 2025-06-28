@@ -10,29 +10,49 @@ datasource db {
 }
 
 model Product {
-  id        Int      @id @default(autoincrement())
-  title     String
-  category  String
-  price     Float
-  image     String
-  createdAt DateTime @default(now())
+  id       Int     @id @default(autoincrement())
+  title    String
+  category String
+  brand    String
+  type     String
+  color    String
+  size     Float
+  price    Float
+  image    String
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  phone    String    @unique
-  name     String?
-  email    String?
-  messages Message[]
+  id         Int         @id @default(autoincrement())
+  phone      String      @unique
+  name       String?
+  email      String?
+  messages   Message[]
+  salesChats SalesChat[] 
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  message   String
-  createdAt DateTime @default(now())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  id          Int        @id @default(autoincrement())
+  message     String
+  createdAt   DateTime   @default(now())
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id])
+  salesChatId Int?
+  salesChat   SalesChat? @relation(fields: [salesChatId], references: [id])
 }
+
+
+model SalesChat {
+  id                  Int        @id @default(autoincrement())
+  userId              Int
+  user                User       @relation(fields: [userId], references: [id])
+  status              String     @default("activa") // activa | interes | cerrada
+  resumen             String?    // resumen conversacional
+  productoInteresado  String?    // lo que el cliente quiere, detectado por AI
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  messages            Message[]
+}
+
 
 model Lead {
   id         Int      @id @default(autoincrement())
