@@ -13,9 +13,6 @@ export async function GET(request: Request) {
         { title: { contains: query, mode: 'insensitive' } },
         { category: { contains: query, mode: 'insensitive' } }
       ]
-    },
-    orderBy: {
-      createdAt: 'desc'
     }
   });
 
