@@ -17,3 +17,19 @@ model Product {
   image     String
   createdAt DateTime @default(now())
 }
+
+model User {
+  id       Int       @id @default(autoincrement())
+  phone    String    @unique
+  name     String?
+  email    String?
+  messages Message[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  message   String
+  createdAt DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
