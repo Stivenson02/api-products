@@ -30,20 +30,30 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
-  // Paginación
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = parseInt(searchParams.get('limit') || '10', 10);
-
   const skip = (page - 1) * limit;
 
-  try {
-    const leads = await prisma.lead.findMany({
-      skip,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    });
+  const name = searchParams.get('name')?.toLowerCase();
+  const email = searchParams.get('email')?.toLowerCase();
+  const searchTerm = searchParams.get('searchTerm')?.toLowerCase();
 
-    const total = await prisma.lead.count();
+  const where: any = {
+    ...(name && { name: { contains: name, mode: 'insensitive' } }),
+    ...(email && { email: { contains: email, mode: 'insensitive' } }),
+    ...(searchTerm && { searchTerm: { contains: searchTerm, mode: 'insensitive' } }),
+  };
+
+  try {
+    const [leads, total] = await Promise.all([
+      prisma.lead.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.lead.count({ where }),
+    ]);
 
     return NextResponse.json({
       data: leads,
@@ -59,3 +69,4 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Could not fetch leads' }, { status: 500 });
   }
 }
+
