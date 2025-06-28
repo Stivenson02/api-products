@@ -38,16 +38,37 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Phone is required' }, { status: 400 });
   }
 
-  const phone = normalizePhone(decodeURIComponent(rawPhone));
+  const phone = decodeURIComponent(rawPhone);
 
   const user = await prisma.user.findUnique({
     where: { phone },
-    include: { messages: true }
   });
 
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ messages: user.messages });
+  // Obtener la fecha actual con hora 00:00
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  // Obtener fin del día actual 23:59
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  const messages = await prisma.message.findMany({
+    where: {
+      userId: user.id,
+      createdAt: {
+        gte: startOfToday,
+        lte: endOfToday,
+      },
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+
+  return NextResponse.json(messages);
 }
+
