@@ -11,13 +11,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No keywords provided' }, { status: 400 });
   }
 
-  const orFilters = keywords.flatMap(keyword => [
-    { title: { contains: keyword, mode: 'insensitive' } },
-    { category: { contains: keyword, mode: 'insensitive' } },
-    { brand: { contains: keyword, mode: 'insensitive' } },
-    { type: { contains: keyword, mode: 'insensitive' } },
-    { color: { contains: keyword, mode: 'insensitive' } }
-  ]);
+  const orFilters = keywords.flatMap(keyword => {
+    const fields = ['title', 'category', 'brand', 'type', 'color'] as const;
+
+    return fields.map(field => ({
+      [field]: {
+        contains: keyword,
+        mode: 'insensitive' as const
+      }
+    }));
+  });
 
   const products = await prisma.product.findMany({
     where: {
